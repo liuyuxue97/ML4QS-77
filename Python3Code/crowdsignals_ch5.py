@@ -7,20 +7,16 @@
 #                                                            #
 ##############################################################
 
-from Chapter5.DistanceMetrics import InstanceDistanceMetrics
-from Chapter5.DistanceMetrics import PersonDistanceMetricsNoOrdering
-from Chapter5.DistanceMetrics import PersonDistanceMetricsOrdering
-from Chapter5.Clustering import NonHierarchicalClustering
-from Chapter5.Clustering import HierarchicalClustering
-import util.util as util
-from util.VisualizeDataset import VisualizeDataset
-
-import sys
 import copy
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from pathlib import Path
+import util.util as util
+from Chapter5.Clustering import HierarchicalClustering
+from Chapter5.Clustering import NonHierarchicalClustering
+from util.VisualizeDataset import VisualizeDataset
 
 # As usual, we set our program constants, read the input file and initialize a visualization object.
 DATA_PATH = Path('./intermediate_datafiles/')
@@ -48,7 +44,7 @@ silhouette_values = []
 print('===== kmeans clustering =====')
 for k in k_values:
     print(f'k = {k}')
-    dataset_cluster = clusteringNH.k_means_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 20, 10)
+    dataset_cluster = clusteringNH.k_means_over_instances(copy.deepcopy(dataset), ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], k, 'default', 20, 10)
     silhouette_score = dataset_cluster['silhouette'].mean()
     print(f'silhouette = {silhouette_score}')
     silhouette_values.append(silhouette_score)
@@ -62,10 +58,10 @@ DataViz.plot_xy(x=[k_values], y=[silhouette_values], xlabel='k', ylabel='silhoue
 k = k_values[np.argmax(silhouette_values)]
 print(f'Highest K-Means silhouette score: k = {k}')
 
-dataset_knn = clusteringNH.k_means_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 50, 50)
-DataViz.plot_clusters_3d(dataset_knn, ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], 'cluster', ['label'])
+dataset_knn = clusteringNH.k_means_over_instances(copy.deepcopy(dataset), ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], k, 'default', 50, 50)
+DataViz.plot_clusters_3d(dataset_knn, ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'cluster', ['label'])
 DataViz.plot_silhouette(dataset_knn, 'cluster', 'silhouette')
-util.print_latex_statistics_clusters(dataset_knn, 'cluster', ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], 'label')
+util.print_latex_statistics_clusters(dataset_knn, 'cluster', ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'label')
 del dataset_knn['silhouette']
 
 k_values = range(2, 10)
@@ -76,7 +72,7 @@ silhouette_values = []
 print('===== k medoids clustering =====')
 for k in k_values:
     print(f'k = {k}')
-    dataset_cluster = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 20, n_inits=10)
+    dataset_cluster = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], k, 'default', 20, n_inits=10)
     silhouette_score = dataset_cluster['silhouette'].mean()
     print(f'silhouette = {silhouette_score}')
     silhouette_values.append(silhouette_score)
@@ -90,10 +86,10 @@ DataViz.plot_xy(x=[k_values], y=[silhouette_values], xlabel='k', ylabel='silhoue
 k = k_values[np.argmax(silhouette_values)]
 print(f'Highest K-Medoids silhouette score: k = {k}')
 
-dataset_kmed = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'default', 20, n_inits=50)
-DataViz.plot_clusters_3d(dataset_kmed, ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], 'cluster', ['label'])
+dataset_kmed = clusteringNH.k_medoids_over_instances(copy.deepcopy(dataset), ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], k, 'default', 20, n_inits=50)
+DataViz.plot_clusters_3d(dataset_kmed, ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'cluster', ['label'])
 DataViz.plot_silhouette(dataset_kmed, 'cluster', 'silhouette')
-util.print_latex_statistics_clusters(dataset_kmed, 'cluster', ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], 'label')
+util.print_latex_statistics_clusters(dataset_kmed, 'cluster', ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], 'label')
 
 # And the hierarchical clustering is the last one we try
 
@@ -107,7 +103,7 @@ silhouette_values = []
 print('===== agglomerative clustering =====')
 for k in k_values:
     print(f'k = {k}')
-    dataset_cluster, l = clusteringH.agglomerative_over_instances(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y', 'acc_phone_z'], k, 'euclidean', use_prev_linkage=True, link_function='ward')
+    dataset_cluster, l = clusteringH.agglomerative_over_instances(copy.deepcopy(dataset), ['gyr_phone_x', 'gyr_phone_y', 'gyr_phone_z'], k, 'euclidean', use_prev_linkage=True, link_function='ward')
     silhouette_score = dataset_cluster['silhouette'].mean()
     print(f'silhouette = {silhouette_score}')
     silhouette_values.append(silhouette_score)

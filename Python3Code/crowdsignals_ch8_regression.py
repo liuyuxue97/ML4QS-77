@@ -44,7 +44,7 @@ DataViz = VisualizeDataset(__file__)
 
 # Read the result from the previous chapter, and make sure the index is of the type datetime.
 DATA_PATH = Path('./intermediate_datafiles/')
-DATASET_FNAME = 'chapter5_result.csv'
+DATASET_FNAME = 'chapter5_result_own.csv'
 
 DataViz = VisualizeDataset(__file__)
 
@@ -60,9 +60,9 @@ dataset.index = pd.to_datetime(dataset.index)
 
 prepare = PrepareDatasetForLearning()
 
-train_X, test_X, train_y, test_y = prepare.split_single_dataset_regression_by_time(dataset, 'hr_watch_rate', '2016-02-08 18:29:56',
+train_X, test_X, train_y, test_y = prepare.split_single_dataset_regression_by_time(dataset, 'hr_watch_rate', '2020-06-02 13:11:36',
 #                                                                                   '2016-02-08 18:29:58','2016-02-08 18:29:59')
-                                                                                   '2016-02-08 19:34:07', '2016-02-08 20:07:50')
+                                                                                   '2020-06-02 13:52:51', '2020-06-02 14:13:28')
 
 print('Training set length is: ', len(train_X.index))
 print('Test set length is: ', len(test_X.index))
@@ -74,9 +74,9 @@ print('Test set length is: ', len(test_X.index))
 
 # Select subsets of the features that we will consider:
 
-basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','acc_watch_x','acc_watch_y','acc_watch_z','gyr_phone_x','gyr_phone_y','gyr_phone_z','gyr_watch_x','gyr_watch_y','gyr_watch_z',
-                  'labelOnTable','labelSitting','labelWashingHands','labelWalking','labelStanding','labelDriving','labelEating','labelRunning',
-                  'light_phone_lux','mag_phone_x','mag_phone_y','mag_phone_z','mag_watch_x','mag_watch_y','mag_watch_z','press_phone_pressure']
+basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','gyr_phone_x','gyr_phone_y','gyr_phone_z',
+                  'labelSitting','labelWalking','labelStanding','labelRunning','labelBiking',
+                  'mag_phone_x','mag_phone_y','mag_phone_z']
 pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6','pca_7']
 time_features = [name for name in dataset.columns if ('temp_' in name and not 'hr_watch' in name)]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
@@ -90,9 +90,9 @@ features_after_chapter_3 = list(set().union(basic_features, pca_features))
 features_after_chapter_4 = list(set().union(basic_features, pca_features, time_features, freq_features))
 features_after_chapter_5 = list(set().union(basic_features, pca_features, time_features, freq_features, cluster_features))
 
-selected_features = ['temp_pattern_labelOnTable','labelOnTable', 'temp_pattern_labelOnTable(b)labelOnTable', 'cluster',
-                     'pca_1_temp_mean_ws_120','pca_2_temp_mean_ws_120','pca_2','acc_watch_y_temp_mean_ws_120','gyr_watch_y_pse',
-                     'gyr_watch_x_pse']
+selected_features = ['acc_phone_y_freq_0.0_Hz_ws_40', 'pca_3_temp_mean_ws_120', 'mag_phone_y_temp_std_ws_120', 'pca_7_temp_std_ws_120',
+                     'acc_phone_y_freq_0.1_Hz_ws_40', 'gyr_phone_y_max_freq', 'acc_phone_x_freq_weighted', 'gyr_phone_z_freq_1.4_Hz_ws_40',
+                     'acc_phone_x_freq_0.8_Hz_ws_40', 'mag_phone_x_freq_0.6_Hz_ws_40', 'gyr_phone_y_freq_0.8_Hz_ws_40', 'acc_phone_y_freq_1.6_Hz_ws_40']
 possible_feature_sets = [basic_features, features_after_chapter_3, features_after_chapter_4, features_after_chapter_5, selected_features]
 feature_names = ['initial set', 'Chapter 3', 'Chapter 4', 'Chapter 5', 'Selected features']
 

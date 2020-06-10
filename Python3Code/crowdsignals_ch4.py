@@ -48,15 +48,15 @@ window_sizes = [int(float(5000)/milliseconds_per_instance), int(float(0.5*60000)
 NumAbs = NumericalAbstraction()
 dataset_copy = copy.deepcopy(dataset)
 for ws in window_sizes:
-    dataset_copy = NumAbs.abstract_numerical(dataset_copy, ['acc_phone_x'], ws, 'mean')
-    dataset_copy = NumAbs.abstract_numerical(dataset_copy, ['acc_phone_x'], ws, 'std')
+    dataset_copy = NumAbs.abstract_numerical(dataset_copy, ['acc_phone_x'], ws, 'median')
+    dataset_copy = NumAbs.abstract_numerical(dataset_copy, ['acc_phone_x'], ws, 'max')
 
-DataViz.plot_dataset(dataset_copy, ['acc_phone_x', 'acc_phone_x_temp_mean', 'acc_phone_x_temp_std', 'label'], ['exact', 'like', 'like', 'like'], ['line', 'line', 'line', 'points'])
+DataViz.plot_dataset(dataset_copy, ['acc_phone_x', 'acc_phone_x_temp_median','acc_phone_x_temp_max', 'label'], ['exact', 'like', 'like',  'like'], ['line', 'line','line', 'points'])
 
 ws = int(float(0.5*60000)/milliseconds_per_instance)
 selected_predictor_cols = [c for c in dataset.columns if not 'label' in c]
-dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'mean')
-dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'std')
+dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'median')
+dataset = NumAbs.abstract_numerical(dataset, selected_predictor_cols, ws, 'max')
 
 DataViz.plot_dataset(dataset, ['acc_phone_x', 'gyr_phone_x', 'hr_watch_rate', 'light_phone_lux', 'mag_phone_x', 'press_phone_', 'pca_1', 'label'], ['like', 'like', 'like', 'like', 'like', 'like', 'like','like'], ['line', 'line', 'line', 'line', 'line', 'line', 'line', 'points'])
 
@@ -76,7 +76,10 @@ data_table = FreqAbs.abstract_frequency(copy.deepcopy(dataset), ['acc_phone_x'],
 
 # Spectral analysis.
 
-DataViz.plot_dataset(data_table, ['acc_phone_x_max_freq', 'acc_phone_x_freq_weighted', 'acc_phone_x_pse', 'label'], ['like', 'like', 'like', 'like'], ['line', 'line', 'line','points'])
+DataViz.plot_dataset(data_table, ['acc_phone_x_skewness','label'], ['like','like'], ['line','points'])
+DataViz.plot_dataset(data_table, ['acc_phone_x_kurtosis','label'], ['like','like'], ['line','points'])
+
+
 
 dataset = FreqAbs.abstract_frequency(dataset, periodic_predictor_cols, int(float(10000)/milliseconds_per_instance), fs)
 

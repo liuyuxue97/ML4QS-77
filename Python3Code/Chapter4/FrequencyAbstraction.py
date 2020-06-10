@@ -8,6 +8,8 @@
 ##############################################################
 
 import numpy as np
+from scipy.stats import skew
+from scipy.stats import kurtosis
 
 
 # This class performs a Fourier transformation on the data to find frequencies that occur
@@ -33,6 +35,10 @@ class FourierTransformation:
             data_table[col + '_max_freq'] = np.nan
             data_table[col + '_freq_weighted'] = np.nan
             data_table[col + '_pse'] = np.nan
+            #add additional measurement(skewness)
+            data_table[col + '_skewness'] = np.nan
+            data_table[col + '_kurtosis'] = np.nan
+
             for freq in freqs:
                 data_table[col + '_freq_' + str(freq) + '_Hz_ws_' + str(window_size)] = np.nan
 
@@ -48,6 +54,10 @@ class FourierTransformation:
 
                 data_table.iloc[i, data_table.columns.get_loc(f'{col}_max_freq')] = freqs[np.argmax(real_ampl[0:len(real_ampl)])]
                 data_table.iloc[i, data_table.columns.get_loc(f'{col}_freq_weighted')] = float(np.sum(freqs * real_ampl)) / np.sum(real_ampl)
+                # add additional measurements (skewness, kurtosis)
+                data_table.iloc[i, data_table.columns.get_loc(f'{col}_skewness')] = np.array(skew(real_ampl))
+                data_table.iloc[i, data_table.columns.get_loc(f'{col}_kurtosis')] = np.array(kurtosis(real_ampl))
+
                 PSD = np.divide(np.square(real_ampl),float(len(real_ampl)))
                 PSD_pdf = np.divide(PSD, np.sum(PSD))
 
