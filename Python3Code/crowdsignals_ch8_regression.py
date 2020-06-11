@@ -60,7 +60,7 @@ dataset.index = pd.to_datetime(dataset.index)
 
 prepare = PrepareDatasetForLearning()
 
-train_X, test_X, train_y, test_y = prepare.split_single_dataset_regression_by_time(dataset, 'hr_watch_rate', '2020-06-02 13:11:36',
+train_X, test_X, train_y, test_y = prepare.split_single_dataset_regression_by_time(dataset, 'gyr_phone_z', '2020-06-02 13:11:36',
 #                                                                                   '2016-02-08 18:29:58','2016-02-08 18:29:59')
                                                                                    '2020-06-02 13:52:51', '2020-06-02 14:13:28')
 
@@ -74,11 +74,12 @@ print('Test set length is: ', len(test_X.index))
 
 # Select subsets of the features that we will consider:
 
-basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','gyr_phone_x','gyr_phone_y','gyr_phone_z',
+basic_features = ['acc_phone_x','acc_phone_y','acc_phone_z','gyr_phone_x','gyr_phone_y',
                   'labelSitting','labelWalking','labelStanding','labelRunning','labelBiking',
                   'mag_phone_x','mag_phone_y','mag_phone_z']
 pca_features = ['pca_1','pca_2','pca_3','pca_4','pca_5','pca_6','pca_7']
-time_features = [name for name in dataset.columns if ('temp_' in name and not 'hr_watch' in name)]
+time_features = [name for name in dataset.columns if ('temp_' in name )]
+##time_features = [name for name in dataset.columns if ('temp_' in name and not 'hr_watch' in name)]
 freq_features = [name for name in dataset.columns if (('_freq' in name) or ('_pse' in name))]
 print('#basic features: ', len(basic_features))
 print('#PCA features: ', len(pca_features))
@@ -98,9 +99,9 @@ feature_names = ['initial set', 'Chapter 3', 'Chapter 4', 'Chapter 5', 'Selected
 
 # Let us first study whether the time series is stationary and what the autocorrelations are.
 
-dftest = adfuller(dataset['hr_watch_rate'], autolag='AIC')
+dftest = adfuller(dataset['gyr_phone_z'], autolag='AIC')
 
-plt.Figure(); autocorrelation_plot(dataset['hr_watch_rate'])
+plt.Figure(); autocorrelation_plot(dataset['gyr_phone_z'])
 DataViz.save(plt)
 plt.show()
 
@@ -194,37 +195,10 @@ for i in range(0, len(possible_feature_sets)):
 DataViz.plot_performances_regression(['Reservoir', 'RNN', 'Time series'], feature_names, scores_over_all_algs)
 
 regr_train_y, regr_test_y = learner.reservoir_computing(train_X[features_after_chapter_5], train_y, test_X[features_after_chapter_5], test_y, gridsearch=False)
-DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['hr_watch_rate'], test_X.index, test_y, regr_test_y['hr_watch_rate'], 'heart rate')
+DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['gyr_phone_z'], test_X.index, test_y, regr_test_y['gyr_phone_z'], 'gyr_z')
 regr_train_y, regr_test_y = learner.recurrent_neural_network(train_X[basic_features], train_y, test_X[basic_features], test_y, gridsearch=True)
-DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['hr_watch_rate'], test_X.index, test_y, regr_test_y['hr_watch_rate'], 'heart rate')
+DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['gyr_phone_z'], test_X.index, test_y, regr_test_y['gyr_phone_z'], 'gyr_z')
 regr_train_y, regr_test_y = learner.time_series(train_X[basic_features], train_y, test_X[basic_features], test_y, gridsearch=True)
-DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['hr_watch_rate'], test_X.index, test_y, regr_test_y['hr_watch_rate'], 'heart rate')
+DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y, regr_train_y['gyr_phone_z'], test_X.index, test_y, regr_test_y['gyr_phone_z'], 'gyr_z')
 
-# And now some example code for using the dynamical systems model with parameter tuning (note: focus on predicting accelerometer data):
 
-train_X, test_X, train_y, test_y = prepare.split_single_dataset_regression(copy.deepcopy(dataset), ['acc_phone_x', 'acc_phone_y'], 0.9, filter=False, temporal=True)
-
-output_sets = learner.dynamical_systems_model_nsga_2(train_X, train_y, test_X, test_y, ['self.acc_phone_x', 'self.acc_phone_y', 'self.acc_phone_z'],
-                                                     ['self.a * self.acc_phone_x + self.b * self.acc_phone_y', 'self.c * self.acc_phone_y + self.d * self.acc_phone_z', 'self.e * self.acc_phone_x + self.f * self.acc_phone_z'],
-                                                     ['self.acc_phone_x', 'self.acc_phone_y'],
-                                                     ['self.a', 'self.b', 'self.c', 'self.d', 'self.e', 'self.f'],
-                                                     pop_size=10, max_generations=10, per_time_step=True)
-DataViz.plot_pareto_front(output_sets)
-
-DataViz.plot_numerical_prediction_versus_real_dynsys_mo(train_X.index, train_y, test_X.index, test_y, output_sets, 0, 'acc_phone_x')
-
-regr_train_y, regr_test_y = learner.dynamical_systems_model_ga(train_X, train_y, test_X, test_y, ['self.acc_phone_x', 'self.acc_phone_y', 'self.acc_phone_z'],
-                                                     ['self.a * self.acc_phone_x + self.b * self.acc_phone_y', 'self.c * self.acc_phone_y + self.d * self.acc_phone_z', 'self.e * self.acc_phone_x + self.f * self.acc_phone_z'],
-                                                     ['self.acc_phone_x', 'self.acc_phone_y'],
-                                                     ['self.a', 'self.b', 'self.c', 'self.d', 'self.e', 'self.f'],
-                                                     pop_size=5, max_generations=10, per_time_step=True)
-
-DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y['acc_phone_x'], regr_train_y['acc_phone_x'], test_X.index, test_y['acc_phone_x'], regr_test_y['acc_phone_x'], 'acc_phone_x')
-
-regr_train_y, regr_test_y = learner.dynamical_systems_model_sa(train_X, train_y, test_X, test_y, ['self.acc_phone_x', 'self.acc_phone_y', 'self.acc_phone_z'],
-                                                     ['self.a * self.acc_phone_x + self.b * self.acc_phone_y', 'self.c * self.acc_phone_y + self.d * self.acc_phone_z', 'self.e * self.acc_phone_x + self.f * self.acc_phone_z'],
-                                                     ['self.acc_phone_x', 'self.acc_phone_y'],
-                                                     ['self.a', 'self.b', 'self.c', 'self.d', 'self.e', 'self.f'],
-                                                     max_generations=10, per_time_step=True)
-
-DataViz.plot_numerical_prediction_versus_real(train_X.index, train_y['acc_phone_x'], regr_train_y['acc_phone_x'], test_X.index, test_y['acc_phone_x'], regr_test_y['acc_phone_x'], 'acc_phone_x')
